@@ -216,3 +216,22 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ==========================
+# AnuSathi Project
+# ==========================
+
+# Environment variables
+backend/.env
+
+# Uploaded PDFs
+backend/Data/Papers/*.pdf
+!backend/Data/Papers/.gitkeep
+
+# Processed chunks/indexes
+backend/processed_data/
+
+# Optional model files
+*.gguf
+*.safetensors
+*.bin

@@ -1,0 +1,35 @@
+
+
+# --- CORE API & WEB FRAMEWORK ---
+fastapi                     # High-performance web framework for the API
+uvicorn[standard]           # ASGI server to run the FastAPI app
+python-dotenv               # For loading configuration from .env files
+requests                    # HTTP library for internal/external API calls
+numpy                       # Numerical processing
+
+
+
+# --- VECTOR DB & RETRIEVAL ---
+qdrant-client               # Vector Database for semantic search
+flashrank                   # Ultra-fast local cross-encoder for semantic reranking
+
+# --- LANGCHAIN 
+langchain                   # Core LLM orchestration
+langchain-community         # Community-contributed tools and loaders
+pydantic>=2.0.0             # Data validation and settings management
+
+# --- DATA INGESTION & DOCUMENT PARSING ---
+               
+pypdf                       # Local PDF text extraction (replaces Document AI)
+           
+pdfplumber                  # Fallback PDF parser for scanned/complex layouts
+
+
+
+# --- EMBEDDINGS (SENTENCE TRANSFORMERS) ---
+sentence-transformers==3.41      # Used by FlashRank reranker internally
+huggingface-hub==0.34.4
+transformers==4.57.6
+
+accelerate #for llm_service to manage its loading in hardware in layers or gpu efficently
+

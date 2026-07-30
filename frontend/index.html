@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AnuSathi — AI/ML Research Paper Explainer</title>
+  <meta name="description" content="A Hinglish-friendly AI tutor that explains AI/ML research papers in simple terms using a fine-tuned Qwen model with RAG." />
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.min.js"></script>
+
+  <!-- marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
+  <!-- highlight.js for code syntax highlighting -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css" id="hljs-theme" />
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <!-- ======================== NAVBAR ======================== -->
+  <nav class="navbar" role="navigation" aria-label="Main navigation">
+    <button class="navbar-brand" id="home-btn" aria-label="Go to home" title="Home">
+      <span class="brand-icon" aria-hidden="true">
+        <i data-lucide="sparkles"></i>
+      </span>
+      <span class="brand-name">AnuSathi</span>
+    </button>
+    <div class="navbar-actions">
+      <button
+        id="new-chat-btn"
+        class="icon-btn new-chat-btn"
+        aria-label="New conversation"
+        title="New Chat"
+      >
+        <i data-lucide="square-pen"></i>
+        <span class="new-chat-label">New Chat</span>
+      </button>
+      <button
+        id="theme-toggle"
+        class="icon-btn"
+        aria-label="Toggle theme"
+        title="Toggle dark/light theme"
+      >
+        <i data-lucide="moon" id="theme-icon"></i>
+      </button>
+      <button
+        id="sidebar-toggle"
+        class="icon-btn sidebar-toggle-btn"
+        aria-label="Toggle sidebar"
+        title="Toggle sidebar"
+      >
+        <i data-lucide="panel-left"></i>
+      </button>
+    </div>
+  </nav>
+
+  <!-- ======================== APP SHELL ======================== -->
+  <div class="app-shell">
+
+    <!-- ======================== SIDEBAR ======================== -->
+    <aside class="sidebar" id="sidebar" aria-label="Sidebar">
+      <div class="sidebar-inner">
+
+        <!-- Upload Section -->
+        <section class="sidebar-section" aria-labelledby="upload-section-title">
+          <h2 class="sidebar-section-title" id="upload-section-title">Upload Paper</h2>
+
+          <div
+            id="upload-dropzone"
+            class="upload-dropzone"
+            role="button"
+            tabindex="0"
+            aria-label="Upload PDF: drag and drop or click to browse"
+          >
+            <input
+              type="file"
+              id="file-input"
+              accept=".pdf"
+              hidden
+              aria-hidden="true"
+            />
+            <div class="dropzone-content" id="dropzone-content">
+              <span class="dropzone-icon">
+                <i data-lucide="cloud-upload"></i>
+              </span>
+              <p class="dropzone-primary">Drop your research paper here</p>
+              <p class="dropzone-secondary">or</p>
+              <button class="browse-btn" id="browse-btn" type="button">Browse PDF</button>
+              <p class="dropzone-hint">Only PDF files accepted</p>
+            </div>
+            <!-- Upload progress (hidden by default) -->
+            <div class="upload-progress hidden" id="upload-progress">
+              <div class="progress-spinner" aria-hidden="true"></div>
+              <p class="progress-message" id="progress-message">Uploading paper...</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- Current Paper Section -->
+        <section class="sidebar-section" aria-labelledby="current-paper-title">
+          <h2 class="sidebar-section-title" id="current-paper-title">Current Paper</h2>
+
+          <div class="current-paper-card" id="current-paper-card">
+            <!-- No paper state -->
+            <div class="no-paper" id="no-paper-state">
+              <span class="no-paper-icon" aria-hidden="true">
+                <i data-lucide="file-x"></i>
+              </span>
+              <p class="no-paper-text">No paper uploaded</p>
+            </div>
+
+            <!-- Active paper state (hidden by default) -->
+            <div class="active-paper hidden" id="active-paper-state">
+              <div class="active-paper-header">
+                <span class="paper-file-icon" aria-hidden="true">
+                  <i data-lucide="file-text"></i>
+                </span>
+                <div class="paper-info">
+                  <p class="paper-filename" id="paper-filename">paper.pdf</p>
+                  <span class="active-badge">Active</span>
+                </div>
+              </div>
+              <div class="paper-actions">
+                <button class="paper-btn paper-btn-replace" id="replace-paper-btn" type="button">
+                  <i data-lucide="refresh-cw"></i>
+                  Replace Paper
+                </button>
+                <button class="paper-btn paper-btn-remove" id="remove-paper-btn" type="button">
+                  <i data-lucide="trash-2"></i>
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </aside>
+
+    <!-- Sidebar overlay (mobile) -->
+    <div class="sidebar-overlay" id="sidebar-overlay" aria-hidden="true"></div>
+
+    <!-- ======================== MAIN WORKSPACE ======================== -->
+    <main class="chat-workspace" role="main">
+
+      <!-- Chat messages container -->
+      <div class="chat-messages" id="chat-messages" aria-live="polite" aria-label="Chat messages">
+
+        <!-- Welcome / Hero screen -->
+        <div class="welcome-screen" id="welcome-screen">
+          <div class="welcome-content">
+            <div class="welcome-icon" aria-hidden="true">
+              <i data-lucide="book-open"></i>
+            </div>
+            <h1 class="welcome-title">AnuSathi</h1>
+            <p class="welcome-subtitle">
+              A Hinglish-friendly AI tutor that explains<br />AI/ML research papers in simple terms.
+            </p>
+            <p class="welcome-description">
+              Upload a research paper to ask questions with citations,<br />
+              or ask any AI/ML question directly.
+            </p>
+            <div class="welcome-chips" aria-label="Example questions">
+              <button class="suggestion-chip" data-q="Explain attention mechanism in simple terms" type="button">
+                Explain attention mechanism in simple terms
+              </button>
+              <button class="suggestion-chip" data-q="What is Retrieval Augmented Generation?" type="button">
+                What is Retrieval Augmented Generation?
+              </button>
+              <button class="suggestion-chip" data-q="What is the difference between BERT and GPT?" type="button">
+                BERT aur GPT mein kya fark hai?
+              </button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ======================== INPUT AREA ======================== -->
+      <div class="input-area" role="region" aria-label="Message input">
+        <div class="input-wrapper">
+          <textarea
+            id="chat-input"
+            class="chat-textarea"
+            placeholder="Ask anything about AI or your uploaded paper..."
+            rows="1"
+            aria-label="Type your question"
+          ></textarea>
+          <!-- Stop button: visible only while waiting for a response -->
+          <button
+            id="stop-btn"
+            class="stop-btn hidden"
+            type="button"
+            aria-label="Stop response"
+            title="Stop generating"
+          >
+            <i data-lucide="square"></i>
+          </button>
+          <button
+            id="send-btn"
+            class="send-btn"
+            type="button"
+            aria-label="Send message"
+            title="Send (Enter)"
+          >
+            <i data-lucide="send"></i>
+          </button>
+        </div>
+        <p class="input-hint">Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</p>
+      </div>
+
+      <!-- Footer -->
+      <footer class="app-footer" role="contentinfo">
+        <p>Powered by <span class="footer-tech">FastAPI</span> · <span class="footer-tech">Qdrant</span> · <span class="footer-tech">FlashRank</span> · <span class="footer-tech">Fine-tuned Qwen</span></p>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- ======================== TOAST CONTAINER ======================== -->
+  <div class="toast-container" id="toast-container" aria-live="assertive" aria-atomic="true" role="status"></div>
+
+  <script src="app.js"></script>
+</body>
+</html>
