@@ -74,7 +74,16 @@ The project demonstrates the complete workflow of building an end-to-end LLM app
 ![GitHub](https://img.shields.io/badge/GitHub-181717?style=for-the-badge&logo=github&logoColor=white)
 ![VS Code](https://img.shields.io/badge/VS_Code-007ACC?style=for-the-badge&logo=visualstudiocode&logoColor=white)
 
+### Training Details
 
+| Component | Details |
+|-----------|---------|
+| **Base Model** | Qwen2.5-1.5B-Instruct |
+| **Fine-tuning Method** | QLoRA (LoRA adapters with 4-bit quantization) using Unsloth |
+| **Training Framework** | Unsloth, Hugging Face Transformers, TRL, PEFT |
+| **Dataset** | ~800 custom instruction-response pairs generated from AI/ML research papers |
+| **Quantization** | 4-bit QLoRA (training) |
+| **Inference** | Hugging Face Transformers (merged 16-bit model) |
 
 
      
